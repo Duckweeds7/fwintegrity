@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fwintegrity"
+version = "0.2.0"
+description = "Firewall rule and config integrity checks across exports and change systems"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "fwintegrity contributors" }]
+keywords = ["firewall", "integrity", "compliance", "diff"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: System :: Networking :: Firewalls",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://pypi.org/project/fwintegrity/"
+Documentation = "https://pypi.org/project/fwintegrity/"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.4", "build>=1.0", "twine>=5.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fwintegrity"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/fwintegrity", "docs", "README.md", "LICENSE", "tests", "scripts"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
