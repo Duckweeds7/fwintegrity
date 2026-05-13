@@ -1,0 +1,43 @@
+# Publishes to PyPI when you publish a GitHub Release (not draft).
+#
+# Option A — Trusted Publishing (recommended, no long-lived token):
+#   1. PyPI → your project → Settings → Publishing → Add pending publisher
+#      Workflow file: .github/workflows/python-publish.yml, branch: master
+#   2. Merge this file, push, then accept the publisher on PyPI after first failed run if needed.
+#
+# Option B — API token:
+#   Repo → Settings → Secrets → PYPI_API_TOKEN (pypi.org account → API tokens)
+#   Uncomment the `with:` block under "Publish to PyPI".
+
+name: Upload Python Package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build
+        run: pip install "build>=1.0" "hatchling>=1.24"
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # Option B — token publishing (comment out if using Trusted Publishing only):
+        # with:
+        #   user: __token__
+        #   password: ${{ secrets.PYPI_API_TOKEN }}
