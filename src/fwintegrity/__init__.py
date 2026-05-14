@@ -35,6 +35,17 @@ from .normalize import (
     parse_loose_service_field,
     parse_ticket_service_field,
 )
+from .table_load import (
+    AUDIT_EXPORT_DEFAULT_MAPPING,
+    TICKET_CSV_DEFAULT_MAPPING,
+    ChangeRowMapping,
+    from_csv_path,
+    from_csv_text,
+    from_dict_rows,
+    from_excel_path,
+    from_package_resource,
+    load_change_rows,
+)
 from .ticket import (
     inf_number_from_row,
     iter_ticket_rows_normalized,
@@ -57,8 +68,10 @@ __all__ = [
     "AddrCompound",
     "AddrLiteral",
     "AddrRef",
+    "AUDIT_EXPORT_DEFAULT_MAPPING",
     "AuditRuleRequestLink",
     "ChangeKind",
+    "ChangeRowMapping",
     "CompareResult",
     "DEFAULT_IGNORED_SERVICE_NAMES",
     "NormalizedChange",
@@ -67,6 +80,7 @@ __all__ = [
     "ServiceBundle",
     "ServiceLiteral",
     "ServiceRef",
+    "TICKET_CSV_DEFAULT_MAPPING",
     "TicketTripleIndex",
     "TripleHit",
     "audit_row_to_normalized",
@@ -74,12 +88,18 @@ __all__ = [
     "audit_triples_all_in_index",
     "build_ticket_triple_index",
     "compare_changes",
+    "from_csv_path",
+    "from_csv_text",
+    "from_dict_rows",
+    "from_excel_path",
+    "from_package_resource",
     "iter_audit_rows_normalized",
     "iter_change_triples",
     "iter_ticket_rows_normalized",
     "inf_number_from_row",
     "link_audit_to_ticket_requests",
     "load_audit_table",
+    "load_change_rows",
     "load_ticket_table",
     "merged_ignored_service_names",
     "parse_audit_report_endpoint",
@@ -96,4 +116,4 @@ __all__ = [
     "ticket_request_id",
 ]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

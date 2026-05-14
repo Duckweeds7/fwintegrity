@@ -90,7 +90,12 @@ def parse_action_field(raw: str) -> ParsedField:
 def row_to_normalized_change(row: Mapping[str, str]) -> tuple[NormalizedChange | None, list[ParseIssue]]:
     issues: list[ParseIssue] = []
     r = {slugify_column_name(k): str(v).strip() for k, v in row.items()}
-    af = parse_action_field(r.get("action", ""))
+    ck_raw = (
+        r.get("change_type", "")
+        or r.get("action", "")
+        or r.get("changetype", "")
+    ).strip()
+    af = parse_action_field(ck_raw)
     if af.normalized is None:
         issues.extend(af.issues)
         return None, issues
@@ -99,9 +104,13 @@ def row_to_normalized_change(row: Mapping[str, str]) -> tuple[NormalizedChange |
     except ValueError:
         issues.append(ParseIssue("invalid_action"))
         return None, issues
-    src = parse_endpoint_text(r.get("source_ip_address", ""))
-    dst = parse_endpoint_text(r.get("destination_ip_address", ""))
-    svc = parse_ticket_service_field(r.get("service_port", ""))
+    src = parse_endpoint_text(
+        (r.get("source", "") or r.get("source_ip_address", "")).strip()
+    )
+    dst = parse_endpoint_text(
+        (r.get("destination", "") or r.get("destination_ip_address", "")).strip()
+    )
+    svc = parse_ticket_service_field((r.get("service", "") or r.get("service_port", "")).strip())
     if src is None:
         issues.append(ParseIssue("missing_source"))
     if dst is None:

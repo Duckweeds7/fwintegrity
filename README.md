@@ -11,11 +11,22 @@ pip install fwintegrity
 ## Quick use
 
 ```python
-from fwintegrity import link_audit_to_ticket_requests, build_ticket_triple_index
+from fwintegrity import (
+    AUDIT_EXPORT_DEFAULT_MAPPING,
+    TICKET_CSV_DEFAULT_MAPPING,
+    build_ticket_triple_index,
+    from_csv_text,
+    link_audit_to_ticket_requests,
+    load_change_rows,
+)
 
-links = link_audit_to_ticket_requests(audit_csv_text, ticket_csv_text)
+audit_rows = load_change_rows(from_csv_text(audit_csv), AUDIT_EXPORT_DEFAULT_MAPPING)
+ticket_rows = load_change_rows(from_csv_text(ticket_csv), TICKET_CSV_DEFAULT_MAPPING)
+links = link_audit_to_ticket_requests(audit_rows, ticket_rows)
 idx = build_ticket_triple_index(ticket_rows)
 ```
+
+Legacy string audit CSV (wide `_CANON` headers) still works: `link_audit_to_ticket_requests(audit_csv_text, ticket_csv_text)`.
 
 See `scripts/sample_demo.py` for a minimal example.
 
@@ -29,6 +40,7 @@ See `scripts/sample_demo.py` for a minimal example.
 - **Services**: `TCP_443`-style audit tokens, loose ticket strings (`TCP 80 UDP 53`), optional **service object** names → `ServiceCompound`.
 - **Matching**: bidirectional containment on source, destination, and service (`change_match`, `compare_changes`).
 - **Triples**: `TicketTripleIndex` / `audit_triples_all_in_index` for `(src_atom, dst_atom, svc_atom)` style checks.
+- **Loading**: declare columns with `ChangeRowMapping`, then `from_csv_text` / `from_csv_path` / `from_excel_path` / `from_dict_rows` / `from_package_resource` + `load_change_rows` (see `table_load.py`).
 
 ## Requirements
 
@@ -63,8 +75,9 @@ The wheel ships the Python package only. **Vendor-specific behavior** is adjuste
 
 | Area | Location |
 |------|----------|
-| Audit CSV header → keys | `audit_report._CANON` |
-| Ticket CSV keys / ticket id columns | `ticket.row_to_normalized_change`, `ticket._TICKET_NUMBER_KEYS` |
+| Column mapping + unified load | `table_load.ChangeRowMapping`, `load_change_rows`, `from_*` sources; optional `mapping=` on `load_audit_table` / `load_ticket_table` |
+| Audit CSV header → keys (legacy wide export) | `audit_report._CANON` |
+| Ticket id columns | `ticket._TICKET_NUMBER_KEYS` |
 | Address & service parsing | `normalize.parse_*`, `expand_audit_network_token`, `_iter_loose_tcp_udp_segments` |
 | Change-kind compatibility (audit vs ticket) | `compare.DEFAULT_AUDIT_TO_TICKET_KINDS` or pass `matrix=` |
 | Ignored services (ICMP, etc.) | `ignore_lists.DEFAULT_IGNORED_SERVICE_NAMES`, `merged_ignored_service_names` |

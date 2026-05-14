@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import ipaddress
@@ -241,9 +242,10 @@ class AuditRuleRequestLink:
 
 
 def link_audit_to_ticket_requests(
-    audit: str | Iterable[Mapping[str, Any]],
+    audit: str | Path | Iterable[Mapping[str, Any]],
     tickets: (
         str
+        | Path
         | Iterable[Mapping[str, Any]]
         | Iterable[Iterable[Mapping[str, Any]]]
     ),

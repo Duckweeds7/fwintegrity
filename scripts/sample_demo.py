@@ -3,14 +3,15 @@ from __future__ import annotations
 import json
 
 from fwintegrity import (
+    AUDIT_EXPORT_DEFAULT_MAPPING,
+    TICKET_CSV_DEFAULT_MAPPING,
     audit_rows_to_changes,
     audit_triples_all_in_index,
     build_ticket_triple_index,
+    from_csv_text,
     link_audit_to_ticket_requests,
-    load_ticket_table,
+    load_change_rows,
     merged_ignored_service_names,
-    parse_audit_report_text,
-    parse_ticket_csv_text,
 )
 
 AUDIT = """Hostname,Change Type,Policy,Number,Name,Scope,Status,Source Zone,Source,User,Destination Zone,Destination,Application,Service,URL Category,Action,Security Profile,TCP Falgs,Schedule Object,Logging,Vendor Tag
@@ -29,12 +30,13 @@ CHG-200,INF-B001,Add,172.16.5.2,172.16.6.11,udp/53
 
 if __name__ == "__main__":
     ign = merged_ignored_service_names(None)
-    ticket_rows = load_ticket_table(parse_ticket_csv_text(TICKETS))
+    ticket_rows = load_change_rows(from_csv_text(TICKETS), TICKET_CSV_DEFAULT_MAPPING)
+    audit_rows = load_change_rows(from_csv_text(AUDIT), AUDIT_EXPORT_DEFAULT_MAPPING)
     idx = build_ticket_triple_index(ticket_rows, ignored_services=ign)
 
     out: dict = {"link": [], "triple_check": []}
 
-    links = link_audit_to_ticket_requests(AUDIT, ticket_rows, ignored_services=ign)
+    links = link_audit_to_ticket_requests(audit_rows, ticket_rows, ignored_services=ign)
     for L in links:
         out["link"].append(
             {
@@ -46,7 +48,7 @@ if __name__ == "__main__":
             }
         )
 
-    audits = audit_rows_to_changes(parse_audit_report_text(AUDIT))
+    audits = audit_rows_to_changes(audit_rows)
     for i, ach in enumerate(audits):
         ok, miss = audit_triples_all_in_index(ach, idx, ignored_services=ign)
         out["triple_check"].append(

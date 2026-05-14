@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fwintegrity"
-version = "0.2.0"
+version = "0.3.0"
 description = "Firewall rule and config integrity checks across exports and change systems"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -29,6 +29,7 @@ Documentation = "https://pypi.org/project/fwintegrity/"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.4", "build>=1.0", "twine>=5.0"]
+excel = ["openpyxl>=3.1"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fwintegrity"]
