@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 from collections import defaultdict
 from dataclasses import dataclass
 from itertools import product
@@ -10,15 +11,54 @@ from .ignore_lists import service_spec_ignored
 from .models import AddrCompound, AddrLiteral, AddrRef, NormalizedChange, ServiceBundle, ServiceCompound, ServiceLiteral, ServiceRef
 
 
+def _merge_ipv4_intervals(intervals: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    if not intervals:
+        return []
+    intervals = sorted(intervals)
+    merged: list[tuple[int, int]] = [intervals[0]]
+    for start, end in intervals[1:]:
+        prev_start, prev_end = merged[-1]
+        if start <= prev_end + 1:
+            merged[-1] = (prev_start, max(prev_end, end))
+        else:
+            merged.append((start, end))
+    return merged
+
+
+def _ipv4_range_atom_keys(networks: tuple[str, ...]) -> list[str]:
+    """Merge IPv4 networks into contiguous ranges (not CIDR collapse) for triple keys."""
+    v4: list[tuple[int, int]] = []
+    other: list[str] = []
+    for n in networks:
+        try:
+            net = ipaddress.ip_network(n, strict=False)
+        except ValueError:
+            other.append(f"i:{n}")
+            continue
+        if net.version != 4:
+            other.append(f"i:{n}")
+            continue
+        v4.append((int(net.network_address), int(net.broadcast_address)))
+    keys: list[str] = []
+    for start, end in _merge_ipv4_intervals(v4):
+        a = ipaddress.ip_address(start)
+        b = ipaddress.ip_address(end)
+        if start == end:
+            keys.append(f"i:{a}")
+        else:
+            keys.append(f"i:{a}-{b}")
+    keys.extend(other)
+    return keys
+
+
 def endpoint_atom_keys(ep: AddrLiteral | AddrRef | AddrCompound) -> list[str]:
-    if isinstance(ep, AddrCompound):
-        return sorted(
-            [f"i:{n}" for n in ep.networks]
-            + [f"g:{o.strip().casefold()}" for o in ep.objects]
-        )
     if isinstance(ep, AddrRef):
         return [f"g:{ep.name.strip().casefold()}"]
-    return [f"i:{n}" for n in ep.networks]
+    if isinstance(ep, AddrCompound):
+        keys = _ipv4_range_atom_keys(ep.networks)
+        keys.extend(f"g:{o.strip().casefold()}" for o in ep.objects)
+        return sorted(set(keys))
+    return sorted(set(_ipv4_range_atom_keys(ep.networks)))
 
 
 def service_atom_keys(

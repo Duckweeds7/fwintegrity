@@ -82,7 +82,7 @@
 
 文件：`src/fwintegrity/triple_index.py`
 
-- 端点：`i:<cidr>`、`g:<object casefold>`
+- 端点：`i:<ipv4>` 或 `i:<start>-<end>`（连续 IPv4 合并为区间，不用 CIDR 子网键）、`g:<object casefold>`
 - 服务：`s:<proto>:<port>`、`sr:g:<name>`
 
 与外部 CMDB/对象库对齐时，可约定 object 名预处理后再进 `parse_*`，或 fork 后改 **`endpoint_atom_keys` / `service_atom_keys`** 的前缀与拼接规则。

@@ -58,4 +58,4 @@ def test_iter_change_triples_count():
         ServiceLiteral("tcp", (PortInterval(80, 80), PortInterval(443, 443))),
     )
     tr = list(iter_change_triples(ch, 100))
-    assert len(tr) == 2 * 1 * 2
+    assert len(tr) == 1 * 1 * 2
