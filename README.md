@@ -30,6 +30,8 @@ Legacy string audit CSV (wide `_CANON` headers) still works: `link_audit_to_tick
 
 See `scripts/sample_demo.py` for a minimal example.
 
+**在线演示（GitHub Pages）**：在仓库 Settings → Pages 选择 **Deploy from branch**、目录 **`/docs`**（或由 Actions 部署 `github-pages` 环境）。访问 `https://<user>.github.io/fwintegrity/` 粘贴 CSV 在线比对（浏览器内 Pyodide 加载 PyPI 包）。
+
 ## Documentation
 
 - **[Customization guide](docs/CUSTOMIZATION.md)** — how to adapt parsers, column maps, ignore lists, and matching rules to your organization’s formats (vendor-neutral extension points).
