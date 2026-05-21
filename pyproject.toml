@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fwintegrity"
-version = "0.4.0"
+version = "0.4.1"
 description = "Firewall rule and config integrity checks across exports and change systems"
 readme = "README.md"
 requires-python = ">=3.10"

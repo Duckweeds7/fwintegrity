@@ -19,7 +19,7 @@
       <div class="flow" id="flow-body">
         <ol>
           <li><strong>加载表格</strong> — <code>load_change_rows(from_csv_text(...), ChangeRowMapping)</code> 按你在映射里声明的列名，得到规范行：<code>change_type</code>、<code>source</code>、<code>destination</code>、<code>service</code>（工单另有 <code>ticket_number</code> / <code>inf_number</code>）。</li>
-          <li><strong>端点解析</strong> — <code>parse_endpoint_text</code>：分词 → 审计前缀 token（<code>IP_</code>、<code>Range_</code>、<code>net_</code> 等）展开为主机或 CIDR → <code>merge_ip_network_strings</code>（<code>collapse_addresses</code>，相邻 IP 收成子网，如两个主机 → <code>/31</code>）→ <code>AddrLiteral</code> / <code>AddrCompound</code> / <code>AddrRef</code>。</li>
+          <li><strong>端点解析</strong> — <code>parse_endpoint_text</code>：分词 → 去掉 IP 后紧贴的 <code>(OA)</code>/<code>(VIP)</code> 等括号标注 → 审计前缀 token 展开 → <code>merge_ip_network_strings</code>（相邻 IP 收成 CIDR）→ <code>AddrLiteral</code> / <code>AddrCompound</code> / <code>AddrRef</code>。</li>
           <li><strong>服务解析</strong> — 审计：<code>parse_audit_report_service</code>（<code>TCP_443</code> 等）；工单：<code>parse_ticket_service_field</code>（松散 <code>TCP 80 UDP 53</code> 等）→ <code>ServiceLiteral</code> / <code>ServiceCompound</code> 等。</li>
           <li><strong>规范化变更</strong> — 每行 → <code>NormalizedChange(change, source, destination, service)</code>（本页 link 用映射后的行；triple 段用 <code>audit_rows_to_changes</code> 同样走端点/服务解析）。</li>
           <li><strong>关联（link）</strong> — <code>link_audit_to_ticket_requests</code>：对每条审计行在工单中找 <code>change_match</code>。端点/服务为<strong>双向包含</strong>（CIDR <code>subnet_of</code>，端口区间包含）；变更类型按 <code>DEFAULT_AUDIT_TO_TICKET_KINDS</code>；ICMP 等可忽略。</li>

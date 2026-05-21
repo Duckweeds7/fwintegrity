@@ -41,7 +41,7 @@
 
 | 能力 | 函数 / 常量 | 说明 |
 |------|-------------|------|
-| 工单侧地址 | `parse_endpoint_text` | 逗号/空白分词、IP/CIDR、审计导出前缀 token 展开、其余进 object |
+| 工单侧地址 | `parse_endpoint_text` | 逗号/空白分词；`10.0.0.1(OA)` 等会先剥掉尾部 `(...)` 再解析 IP；审计导出前缀 token 展开；其余进 object |
 | 审计侧地址 | `parse_audit_report_endpoint` | 目前等同 `parse_endpoint_text`（换行转空格） |
 | 工单侧服务 | `parse_ticket_service_field` | 先 loose TCP/UDP 扫描，再 `parse_service_text` |
 | Loose 服务串 | `parse_loose_service_field`、`_iter_loose_tcp_udp_segments` | 按单词 `TCP`/`UDP` 定位，端口只读 `_PORT_CHARS` 内字符，中间文字进 object |

@@ -17,7 +17,7 @@ from .ticket import slugify_column_name
 class ChangeRowMapping:
     """Map file / dict column labels to canonical row keys used by parsers."""
 
-    change_kind: str
+    change_kind: str | None
     source: str
     destination: str
     service: str
@@ -39,6 +39,13 @@ TICKET_CSV_DEFAULT_MAPPING = ChangeRowMapping(
     service="Service Port",
     ticket_number="Ticket Number",
     inf_number="INF Number",
+)
+
+TICKET_FIREWALL_EXPORT_MAPPING = ChangeRowMapping(
+    change_kind=None,
+    source="Source IP Address",
+    destination="Destination IP Address",
+    service="Service Port",
 )
 
 
@@ -168,7 +175,10 @@ def _canon_from_header_row(header: list[str], cells: list[str], mapping: ChangeR
             raise KeyError(f"column not found for {canon!r}: {label!r} (slug {slugify_column_name(label)!r})")
         out[canon] = cells[idx].strip() if idx < len(cells) else ""
 
-    put(mapping.change_kind, "change_type")
+    if mapping.change_kind:
+        put(mapping.change_kind, "change_type")
+    else:
+        out["change_type"] = "add"
     put(mapping.source, "source")
     put(mapping.destination, "destination")
     put(mapping.service, "service")
@@ -189,7 +199,7 @@ def _canon_from_slug_row(slug_row: Mapping[str, str], mapping: ChangeRowMapping)
         return str(slug_row[sk]).strip()
 
     out: dict[str, str] = {
-        "change_type": pick(mapping.change_kind),
+        "change_type": pick(mapping.change_kind) if mapping.change_kind else "add",
         "source": pick(mapping.source),
         "destination": pick(mapping.destination),
         "service": pick(mapping.service),

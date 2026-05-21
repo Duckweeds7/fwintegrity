@@ -162,16 +162,37 @@ def parse_loose_service_field(
     return ServiceBundle(lit_tuple)
 
 
+def _normalize_ticket_service_text(text: str) -> str:
+    t = unicode_fold_punct(text.strip())
+    return re.sub(r",\s*", " ", t)
+
+
 def parse_ticket_service_field(
     text: str,
 ) -> ServiceLiteral | ServiceRef | ServiceBundle | ServiceCompound | None:
     t = text.strip()
     if not t:
         return None
-    loose = parse_loose_service_field(t)
+    norm = _normalize_ticket_service_text(t)
+    if re.search(r"(?i)(?:TCP|UDP)_\d", norm):
+        parsed = parse_audit_report_service(norm)
+        if parsed is not None:
+            return parsed
+    loose = parse_loose_service_field(norm)
     if loose is not None:
         return loose
-    return parse_service_text(t)
+    return parse_service_text(norm)
+
+
+def _strip_trailing_paren_annotations(token: str) -> str:
+    """Remove trailing ``(OA)`` / ``(VIP)``-style tags glued to an IP, e.g. ``10.0.0.1(OA)``."""
+    t = token.strip()
+    while True:
+        m = re.search(r"\([^)]*\)\s*$", t)
+        if not m:
+            break
+        t = t[: m.start()].strip()
+    return t
 
 
 def parse_endpoint_text(text: str) -> AddrLiteral | AddrRef | AddrCompound | None:
@@ -185,6 +206,9 @@ def parse_endpoint_text(text: str) -> AddrLiteral | AddrRef | AddrCompound | Non
     expanded: list[str] = []
     objects: list[str] = []
     for token in tokens:
+        token = _strip_trailing_paren_annotations(token)
+        if not token:
+            continue
         xs = expand_audit_network_token(token)
         if xs:
             expanded.extend(xs)

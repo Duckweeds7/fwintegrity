@@ -38,6 +38,7 @@ from .normalize import (
 from .table_load import (
     AUDIT_EXPORT_DEFAULT_MAPPING,
     TICKET_CSV_DEFAULT_MAPPING,
+    TICKET_FIREWALL_EXPORT_MAPPING,
     ChangeRowMapping,
     from_csv_path,
     from_csv_text,
@@ -81,6 +82,7 @@ __all__ = [
     "ServiceLiteral",
     "ServiceRef",
     "TICKET_CSV_DEFAULT_MAPPING",
+    "TICKET_FIREWALL_EXPORT_MAPPING",
     "TicketTripleIndex",
     "TripleHit",
     "audit_row_to_normalized",
@@ -116,4 +118,4 @@ __all__ = [
     "ticket_request_id",
 ]
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"

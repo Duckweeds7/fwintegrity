@@ -97,13 +97,22 @@ def row_to_normalized_change(row: Mapping[str, str]) -> tuple[NormalizedChange |
     ).strip()
     af = parse_action_field(ck_raw)
     if af.normalized is None:
-        issues.extend(af.issues)
-        return None, issues
-    try:
-        change = ChangeKind(af.normalized)
-    except ValueError:
-        issues.append(ParseIssue("invalid_action"))
-        return None, issues
+        has_endpoints = bool(
+            (r.get("source", "") or r.get("source_ip_address", "")).strip()
+            or (r.get("destination", "") or r.get("destination_ip_address", "")).strip()
+        )
+        if not ck_raw and has_endpoints:
+            change = ChangeKind.ADD
+            issues.append(ParseIssue("default_action_add"))
+        else:
+            issues.extend(af.issues)
+            return None, issues
+    else:
+        try:
+            change = ChangeKind(af.normalized)
+        except ValueError:
+            issues.append(ParseIssue("invalid_action"))
+            return None, issues
     src = parse_endpoint_text(
         (r.get("source", "") or r.get("source_ip_address", "")).strip()
     )
